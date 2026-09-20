@@ -1,0 +1,43 @@
+# AI Meeting Assistant - Python dependencies
+# Python: 3.10 - 3.12 recommended
+
+# UI
+streamlit>=1.40,<2.0
+
+# YouTube / audio input
+yt-dlp>=2024.12.0
+pydub>=0.25.1
+
+# Local Whisper transcription
+# Use the current PyPI release instead of the old 20231117 build.
+openai-whisper>=20240930
+
+# PyTorch (required by Whisper and HuggingFace embeddings)
+torch>=2.4,<3.0
+torchaudio>=2.4,<3.0
+
+# LangChain + Mistral
+langchain>=0.3,<2.0
+langchain-community>=0.3,<1.0
+langchain-mistralai>=0.2,<2.0
+langchain-huggingface>=0.1,<2.0
+langchain-chroma>=0.2,<2.0
+
+# RAG / vector database
+chromadb>=0.5,<2.0
+sentence-transformers>=3.0,<6.0
+
+# HuggingFace ecosystem
+transformers>=4.45,<5.0
+huggingface-hub>=0.25,<1.0
+
+# Data / text processing
+numpy>=1.26,<3.0
+pandas>=2.2,<3.0
+tiktoken>=0.7,<1.0
+
+# PDF / TXT export
+reportlab>=4.2,<5.0
+
+# Environment variables / API keys
+python-dotenv>=1.0,<2.0

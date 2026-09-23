@@ -1,79 +1,131 @@
-from langchain_mistralai import ChatMistralAI
+from langchain_openrouter import ChatOpenRouter
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.runnables import RunnablePassthrough, RunnableLambda
 
-import os 
+import os
+from dotenv import load_dotenv
+
+# Load variables from .env
+load_dotenv()
+
 
 def get_llm():
-    return ChatMistralAI(model = "mistral-small-latest", mistral_api_key = os.getenv("MISTRAL_API_KEY"),temperature=0.3)
+    """
+    Create and return the OpenRouter LLM.
+    """
+
+    return ChatOpenRouter(
+        model="openrouter/free",
+        api_key=os.getenv("OPENROUTER_API_KEY"),
+        temperature=0.3
+    )
 
 
 def split_transcript(transcript: str) -> list:
+    """
+    Split a long transcript into smaller chunks
+    so that it can be processed by the LLM.
+    """
+
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size = 3000,
-        chunk_overlap = 200
+        chunk_size=3000,
+        chunk_overlap=200
     )
 
     return splitter.split_text(transcript)
 
-def summarize(transcript : str) -> str:
+
+def summarize(transcript: str) -> str:
+    """
+    Generate a professional summary from the transcript.
+    """
+
     llm = get_llm()
 
+    # Prompt for summarizing individual chunks
     map_prompt = ChatPromptTemplate.from_messages(
         [
-        ("system", "Summarize this portion of a meeting transcript concisely."),
-        ("human", "{text}"),
-    ]
+            (
+                "system",
+                "Summarize this portion of a meeting transcript concisely."
+            ),
+            (
+                "human",
+                "{text}"
+            ),
+        ]
     )
 
     map_chain = map_prompt | llm | StrOutputParser()
 
+    # Split transcript into chunks
     chunks = split_transcript(transcript)
 
-    chunk_summaries = [map_chain.invoke({"text" : chunk}) for chunk in chunks]
+    # Summarize each chunk
+    chunk_summaries = [
+        map_chain.invoke({"text": chunk})
+        for chunk in chunks
+    ]
 
+    # Combine all partial summaries
     combined = "\n\n".join(chunk_summaries)
 
+    # Final summary prompt
     combined_prompt = ChatPromptTemplate.from_messages(
         [
-        (
-            "system",
-            "You are an expert meeting summarizer. Combine these partial summaries "
-            "into one final professional meeting summary in bullet points.",
-        ),
-        ("human", "{text}"),
-    ]
+            (
+                "system",
+                "You are an expert meeting summarizer. "
+                "Combine these partial summaries into one "
+                "final professional meeting summary in bullet points."
+            ),
+            (
+                "human",
+                "{text}"
+            ),
+        ]
     )
 
     combined_chain = (
-        RunnablePassthrough() | RunnableLambda(lambda x:{"text":x}) | combined_prompt | llm | StrOutputParser()
+        RunnablePassthrough()
+        | RunnableLambda(lambda x: {"text": x})
+        | combined_prompt
+        | llm
+        | StrOutputParser()
     )
 
     return combined_chain.invoke(combined)
 
-def generate_title(transcript : str) -> str:
+
+def generate_title(transcript: str) -> str:
+    """
+    Generate a short professional title for the transcript.
+    """
+
     llm = get_llm()
 
-    
-
     title_chain = (
-        RunnablePassthrough() | RunnableLambda(lambda x:{"text":x}) | 
-        ChatPromptTemplate.from_messages([
-             (
-                "system",
-                "Based on the meeting transcript, generate a short professional meeting title "
-                "(max 8 words). Only return the title, nothing else.",
-            ),
-            ("human", "{text}"),
-        ])
+        RunnablePassthrough()
+        | RunnableLambda(lambda x: {"text": x})
+        | ChatPromptTemplate.from_messages(
+            [
+                (
+                    "system",
+                    "Based on the meeting transcript, generate a short "
+                    "professional meeting title (max 8 words). "
+                    "Only return the title, nothing else."
+                ),
+                (
+                    "human",
+                    "{text}"
+                ),
+            ]
+        )
         | llm
-        |StrOutputParser()
+        | StrOutputParser()
     )
 
-    return title_chain.invoke(transcript[:2000])
-
-
-
-
+    # StrOutputParser returns a string
+    return title_chain.invoke(transcript[:2000]).strip()

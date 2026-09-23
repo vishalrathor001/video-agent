@@ -20,6 +20,10 @@ os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
 
 def download_youtube_audio(url: str) -> str:
+    """
+    Download audio from YouTube and convert it to WAV.
+    Returns the path of the WAV file.
+    """
 
     output_path = os.path.join(
         DOWNLOAD_DIR,
@@ -30,6 +34,7 @@ def download_youtube_audio(url: str) -> str:
         "format": "bestaudio/best",
         "outtmpl": output_path,
         "ffmpeg_location": FFMPEG_BIN,
+
         "postprocessors": [
             {
                 "key": "FFmpegExtractAudio",
@@ -37,21 +42,38 @@ def download_youtube_audio(url: str) -> str:
                 "preferredquality": "192",
             }
         ],
-        "quiet": True,
+
+        "quiet": False,
+        "noplaylist": True,
     }
 
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(url, download=True)
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
 
-        filename = ydl.prepare_filename(info)
+            info = ydl.extract_info(
+                url,
+                download=True
+            )
 
-        filename = (
-            filename
-            .replace(".webm", ".wav")
-            .replace(".m4a", ".wav")
-        )
+            filename = ydl.prepare_filename(info)
 
-        return filename
+            # Convert original extension to WAV
+            base_name = os.path.splitext(filename)[0]
+            wav_path = base_name + ".wav"
+
+            # Check whether WAV was actually created
+            if not os.path.exists(wav_path):
+                raise FileNotFoundError(
+                    f"WAV file was not created: {wav_path}"
+                )
+
+            print(f"Downloaded WAV: {wav_path}")
+
+            return wav_path
+
+    except Exception as e:
+        print(f"❌ YouTube download failed: {e}")
+        raise
 
 
 def convert_to_wav(input_path: str) -> str:
@@ -113,6 +135,12 @@ def process_input(source: str) -> list:
         print("Detected local file. Converting to WAV...")
 
         wav_path = convert_to_wav(source)
+
+    # Safety check
+    if not os.path.exists(wav_path):
+        raise FileNotFoundError(
+            f"Audio file does not exist: {wav_path}"
+        )
 
     print("Chunking audio...")
 

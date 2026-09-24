@@ -64,3 +64,8 @@ Thumbs.db
 # Project-specific
 # =========================
 CACHE_DIR/
+
+# =========================
+# Vector Database
+# =========================
+vector_db/

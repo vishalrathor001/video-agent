@@ -27,6 +27,11 @@ def download_audio(url: str):
     ydl_opts = {
         "format": "bestaudio/best",
         "outtmpl": output_template,
+        "extractor_args": {
+            "youtube": {
+                "player_client": ["mweb"]
+            }
+        },
 
         "js_runtimes": {
             "deno": {},

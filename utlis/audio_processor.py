@@ -27,6 +27,8 @@ def download_youtube_audio(url: str) -> str:
             "quickjs": {},
         },
 
+        "force_ipv4": True,
+
 
         "postprocessors": [
             {

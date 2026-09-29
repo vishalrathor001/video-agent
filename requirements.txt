@@ -4,7 +4,7 @@
 streamlit==1.64.0
 
 # YouTube / audio
-yt-dlp==2026.8.19
+yt-dlp[default]==2026.8.19
 pydub==0.25.1
 
 # Speech-to-text

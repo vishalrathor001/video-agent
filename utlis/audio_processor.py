@@ -1,21 +1,9 @@
 import os
 import yt_dlp
 
-FFMPEG_BIN = (
-    r"C:\Users\desktop\AppData\Local\Microsoft\WinGet\Packages"
-    r"\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe"
-    r"\ffmpeg-9.0.1-full_build\bin"
-)
-
-os.environ["PATH"] += os.pathsep + FFMPEG_BIN
-
 from pydub import AudioSegment
 
-AudioSegment.converter = os.path.join(FFMPEG_BIN, "ffmpeg.exe")
-AudioSegment.ffprobe = os.path.join(FFMPEG_BIN, "ffprobe.exe")
-
 DOWNLOAD_DIR = "downloads"
-
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
 
@@ -31,25 +19,25 @@ def download_youtube_audio(url: str) -> str:
     )
 
     ydl_opts = {
-        "format": "bestaudio/best",
-        "outtmpl": output_path,
-        "ffmpeg_location": FFMPEG_BIN,
-
-        "postprocessors": [
-            {
-                "key": "FFmpegExtractAudio",
-                "preferredcodec": "wav",
-                "preferredquality": "192",
-            }
-        ],
-
-        "quiet": False,
-        "noplaylist": True,
+    "format": "bestaudio/best",
+    "outtmpl": output_path,
+    "js_runtimes": {
+        "deno": {},
+        "quickjs": {},
+    },
+    "postprocessors": [
+        {
+            "key": "FFmpegExtractAudio",
+            "preferredcodec": "wav",
+            "preferredquality": "192",
+        }
+    ],
+    "quiet": False,
+    "noplaylist": True,
     }
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-
             info = ydl.extract_info(
                 url,
                 download=True
@@ -68,7 +56,6 @@ def download_youtube_audio(url: str) -> str:
                 )
 
             print(f"Downloaded WAV: {wav_path}")
-
             return wav_path
 
     except Exception as e:
@@ -77,7 +64,6 @@ def download_youtube_audio(url: str) -> str:
 
 
 def convert_to_wav(input_path: str) -> str:
-
     output_path = (
         os.path.splitext(input_path)[0]
         + "_converted.wav"
@@ -110,7 +96,6 @@ def chunk_audio(
     for i, start in enumerate(
         range(0, len(audio), chunk_ms)
     ):
-
         chunk = audio[start:start + chunk_ms]
 
         chunk_path = f"{wav_path}_chunk_{i}.wav"
@@ -149,4 +134,4 @@ def process_input(source: str) -> list:
     print(f"Audio ready - {len(chunks)} chunks created!")
 
     return chunks
-
+q

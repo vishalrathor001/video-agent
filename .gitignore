@@ -69,3 +69,5 @@ CACHE_DIR/
 # Vector Database
 # =========================
 vector_db/
+
+.deploy-venv/

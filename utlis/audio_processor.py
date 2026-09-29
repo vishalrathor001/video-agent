@@ -19,21 +19,30 @@ def download_youtube_audio(url: str) -> str:
     )
 
     ydl_opts = {
-    "format": "bestaudio/best",
-    "outtmpl": output_path,
-    "js_runtimes": {
-        "deno": {},
-        "quickjs": {},
-    },
-    "postprocessors": [
-        {
-            "key": "FFmpegExtractAudio",
-            "preferredcodec": "wav",
-            "preferredquality": "192",
-        }
-    ],
-    "quiet": False,
-    "noplaylist": True,
+        "format": "bestaudio/best",
+        "outtmpl": output_path,
+
+        "js_runtimes": {
+            "deno": {},
+            "quickjs": {},
+        },
+
+        "extractor_args": {
+            "youtube": {
+                "player_client": ["android"]
+            }
+        },
+
+        "postprocessors": [
+            {
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": "wav",
+                "preferredquality": "192",
+            }
+        ],
+
+        "quiet": False,
+        "noplaylist": True,
     }
 
     try:

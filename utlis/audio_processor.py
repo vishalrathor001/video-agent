@@ -27,11 +27,6 @@ def download_youtube_audio(url: str) -> str:
             "quickjs": {},
         },
 
-        "extractor_args": {
-            "youtube": {
-                "player_client": ["android"]
-            }
-        },
 
         "postprocessors": [
             {

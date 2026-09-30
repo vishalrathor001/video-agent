@@ -1,61 +1,18 @@
 import os
 import uuid
-import requests
-import yt_dlp
 
 from pydub import AudioSegment
+
 
 DOWNLOAD_DIR = "downloads"
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
 
-def download_youtube_audio(url: str) -> str:
-    """
-    Download YouTube audio through the external downloader API
-    and return the downloaded WAV file path.
-    """
-
-    downloader_api = os.getenv("DOWNLOADER_API_URL")
-
-    if not downloader_api:
-        raise ValueError(
-            "DOWNLOADER_API_URL is not configured."
-        )
-
-    print("Downloading YouTube audio through Downloader API...")
-
-    try:
-        response = requests.get(
-            downloader_api,
-            params={"url": url},
-            timeout=900
-        )
-
-        response.raise_for_status()
-
-        wav_path = os.path.join(
-            DOWNLOAD_DIR,
-            f"{uuid.uuid4()}.wav"
-        )
-
-        with open(wav_path, "wb") as f:
-            f.write(response.content)
-
-        if not os.path.exists(wav_path):
-            raise FileNotFoundError(
-                "Downloader API did not create the WAV file."
-            )
-
-        print(f"Downloaded WAV: {wav_path}")
-
-        return wav_path
-
-    except requests.RequestException as e:
-        print(f"❌ Downloader API failed: {e}")
-        raise
-
-
 def convert_to_wav(input_path: str) -> str:
+    """
+    Convert an uploaded audio/video file to WAV format.
+    The output is mono, 16 kHz audio suitable for transcription.
+    """
 
     output_path = (
         os.path.splitext(input_path)[0]
@@ -79,6 +36,9 @@ def chunk_audio(
     wav_path: str,
     chunks_minutes: int = 10
 ) -> list:
+    """
+    Split WAV audio into smaller chunks for transcription.
+    """
 
     audio = AudioSegment.from_wav(wav_path)
 
@@ -101,24 +61,19 @@ def chunk_audio(
 
 
 def process_input(source: str) -> list:
+    """
+    Process an uploaded local audio/video file.
 
-    if source.startswith("http://") or source.startswith("https://"):
+    The file is converted to WAV and then split
+    into chunks for transcription.
+    """
 
-        print(
-            "Detected YouTube URL. "
-            "Using Downloader API..."
-        )
+    print(
+        "Detected local file. "
+        "Converting to WAV..."
+    )
 
-        wav_path = download_youtube_audio(source)
-
-    else:
-
-        print(
-            "Detected local file. "
-            "Converting to WAV..."
-        )
-
-        wav_path = convert_to_wav(source)
+    wav_path = convert_to_wav(source)
 
     if not os.path.exists(wav_path):
         raise FileNotFoundError(

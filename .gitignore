@@ -71,3 +71,4 @@ CACHE_DIR/
 vector_db/
 
 .deploy-venv/
+downloader_api/

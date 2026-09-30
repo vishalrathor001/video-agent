@@ -556,10 +556,7 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
 
-    source = st.text_input(
-        "YouTube URL or Local File Path",
-        placeholder="Enter Youtube URL ",
-    )
+    
 
     uploaded_file = st.file_uploader(
         "📁 Or Upload Audio/Video File",
@@ -642,29 +639,25 @@ st.markdown("---")
 # =============================================================================
 
 if run_btn:
-    if not source.strip() and uploaded_file is None:
-        st.error("Please enter a YouTube URL or upload a file.")
+    if uploaded_file is None:
+        st.error("Please upload an audio or video file.")
     else:
         # -------------------------------------------------------------
-        # Prepare input source
+        # Prepare uploaded file
         # -------------------------------------------------------------
-        if uploaded_file is not None:
-            os.makedirs("downloads", exist_ok=True)
+        os.makedirs("downloads", exist_ok=True)
 
-            file_ext = os.path.splitext(uploaded_file.name)[1]
+        file_ext = os.path.splitext(uploaded_file.name)[1]
 
-            uploaded_path = os.path.join(
-                "downloads",
-                f"{uuid.uuid4()}{file_ext}"
-            )
+        uploaded_path = os.path.join(
+            "downloads",
+            f"{uuid.uuid4()}{file_ext}"
+        )
 
-            with open(uploaded_path, "wb") as f:
-                f.write(uploaded_file.getbuffer())
+        with open(uploaded_path, "wb") as f:
+            f.write(uploaded_file.getbuffer())
 
-            source = uploaded_path
-
-        else:
-            source = source.strip()
+        source = uploaded_path
 
         st.session_state.processing = True
         st.session_state.pipeline_done = False

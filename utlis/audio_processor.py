@@ -1,4 +1,6 @@
 import os
+import uuid
+import requests
 import yt_dlp
 
 from pydub import AudioSegment
@@ -9,67 +11,52 @@ os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
 def download_youtube_audio(url: str) -> str:
     """
-    Download audio from YouTube and convert it to WAV.
-    Returns the path of the WAV file.
+    Download YouTube audio through the external downloader API
+    and return the downloaded WAV file path.
     """
 
-    output_path = os.path.join(
-        DOWNLOAD_DIR,
-        "%(title)s.%(ext)s"
-    )
+    downloader_api = os.getenv("DOWNLOADER_API_URL")
 
-    ydl_opts = {
-        "format": "bestaudio/best",
-        "outtmpl": output_path,
+    if not downloader_api:
+        raise ValueError(
+            "DOWNLOADER_API_URL is not configured."
+        )
 
-        "js_runtimes": {
-            "deno": {},
-            "quickjs": {},
-        },
-
-        "force_ipv4": True,
-
-
-        "postprocessors": [
-            {
-                "key": "FFmpegExtractAudio",
-                "preferredcodec": "wav",
-                "preferredquality": "192",
-            }
-        ],
-
-        "quiet": False,
-        "noplaylist": True,
-    }
+    print("Downloading YouTube audio through Downloader API...")
 
     try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(
-                url,
-                download=True
+        response = requests.get(
+            downloader_api,
+            params={"url": url},
+            timeout=900
+        )
+
+        response.raise_for_status()
+
+        wav_path = os.path.join(
+            DOWNLOAD_DIR,
+            f"{uuid.uuid4()}.wav"
+        )
+
+        with open(wav_path, "wb") as f:
+            f.write(response.content)
+
+        if not os.path.exists(wav_path):
+            raise FileNotFoundError(
+                "Downloader API did not create the WAV file."
             )
 
-            filename = ydl.prepare_filename(info)
+        print(f"Downloaded WAV: {wav_path}")
 
-            # Convert original extension to WAV
-            base_name = os.path.splitext(filename)[0]
-            wav_path = base_name + ".wav"
+        return wav_path
 
-            # Check whether WAV was actually created
-            if not os.path.exists(wav_path):
-                raise FileNotFoundError(
-                    f"WAV file was not created: {wav_path}"
-                )
-
-            print(f"Downloaded WAV: {wav_path}")
-            return wav_path
-
-    except Exception as e:
-        print(f"❌ YouTube download failed: {e}")
+    except requests.RequestException as e:
+        print(f"❌ Downloader API failed: {e}")
         raise
 
 
 def convert_to_wav(input_path: str) -> str:
+
     output_path = (
         os.path.splitext(input_path)[0]
         + "_converted.wav"
@@ -117,17 +104,22 @@ def process_input(source: str) -> list:
 
     if source.startswith("http://") or source.startswith("https://"):
 
-        print("Detected YouTube URL. Downloading audio...")
+        print(
+            "Detected YouTube URL. "
+            "Using Downloader API..."
+        )
 
         wav_path = download_youtube_audio(source)
 
     else:
 
-        print("Detected local file. Converting to WAV...")
+        print(
+            "Detected local file. "
+            "Converting to WAV..."
+        )
 
         wav_path = convert_to_wav(source)
 
-    # Safety check
     if not os.path.exists(wav_path):
         raise FileNotFoundError(
             f"Audio file does not exist: {wav_path}"
@@ -137,6 +129,8 @@ def process_input(source: str) -> list:
 
     chunks = chunk_audio(wav_path)
 
-    print(f"Audio ready - {len(chunks)} chunks created!")
+    print(
+        f"Audio ready - {len(chunks)} chunks created!"
+    )
 
     return chunks

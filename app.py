@@ -2,6 +2,7 @@ import os
 import time
 import html
 import textwrap
+import uuid
 import streamlit as st
 from dotenv import load_dotenv
 
@@ -556,8 +557,13 @@ with st.sidebar:
     )
 
     source = st.text_input(
-        "YouTube URL or File Path",
-        placeholder="https://youtube.com/watch?v=... or /path/to/file.mp4",
+        "YouTube URL or Local File Path",
+        placeholder="Enter Youtube URL ",
+    )
+
+    uploaded_file = st.file_uploader(
+        "📁 Or Upload Audio/Video File",
+        type=["wav", "mp3", "m4a", "mp4", "webm", "mpeg", "mpga"],
     )
 
     language = st.selectbox(
@@ -636,9 +642,30 @@ st.markdown("---")
 # =============================================================================
 
 if run_btn:
-    if not source.strip():
-        st.error("Please enter a YouTube URL or local file path.")
+    if not source.strip() and uploaded_file is None:
+        st.error("Please enter a YouTube URL or upload a file.")
     else:
+        # -------------------------------------------------------------
+        # Prepare input source
+        # -------------------------------------------------------------
+        if uploaded_file is not None:
+            os.makedirs("downloads", exist_ok=True)
+
+            file_ext = os.path.splitext(uploaded_file.name)[1]
+
+            uploaded_path = os.path.join(
+                "downloads",
+                f"{uuid.uuid4()}{file_ext}"
+            )
+
+            with open(uploaded_path, "wb") as f:
+                f.write(uploaded_file.getbuffer())
+
+            source = uploaded_path
+
+        else:
+            source = source.strip()
+
         st.session_state.processing = True
         st.session_state.pipeline_done = False
         st.session_state.result = None

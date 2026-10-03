@@ -9,13 +9,42 @@
   action items, key decisions, open questions, and context-aware answers.
 </p>
 
+## 🚀 Live Demo
+
+🔗 **Try the AI Video & Audio Analysis Agent:**  
+[**Launch Live Application →**](https://video-agent-pesvdsxen34jeyispbg6gi.streamlit.app/)
+
+> Upload an audio/video file and experience the complete AI-powered
+> transcription, summarization, information extraction, and RAG-based
+> question-answering pipeline directly in your browser.
+
 ---
 
 ## 📸 Application Preview
 
-![AI Video & Audio Analysis Agent](assets/ui-screenshot.png)
+### 🏠 Main Interface
 
-> Upload an audio or video file, select the language, and run the AI analysis pipeline to automatically extract meaningful information from the content.
+![Main Interface](assets/image_1.png)
+
+> Upload an audio or video file and select the required language.
+
+### ⚙️ Processing Pipeline
+
+![Processing Pipeline](assets/image_2.png)
+
+> The application displays the progress of the audio processing, transcription, and AI analysis pipeline.
+
+### 📊 Analysis Results
+
+![Analysis Results](assets/image_3.png)
+
+> View the generated transcript, summary, action items, key decisions, and open questions.
+
+### 💬 RAG-Based Question Answering
+
+![RAG Question Answering](assets/image_4.png)
+
+> Ask questions about the uploaded recording and receive context-aware answers based on the transcript.
 
 ---
 
@@ -704,7 +733,7 @@ If you plan to distribute the project publicly, add an appropriate open-source l
 
 ## 👨‍💻 Author
 
-**Your Name**
+**Vishal Kumar**
 
 Python • Artificial Intelligence • Generative AI • Machine Learning • RAG
 

@@ -22,30 +22,13 @@
 
 ## 📸 Application Preview
 
-### 🏠 Main Interface
+| Main Interface | Processing |
+|---|---|
+| ![Main Interface](assets/image_1.png) | ![Processing](assets/image_2.png) |
 
-![Main Interface](assets/image_1.png)
-
-> Upload an audio or video file and select the required language.
-
-### ⚙️ Processing Pipeline
-
-![Processing Pipeline](assets/image_2.png)
-
-> The application displays the progress of the audio processing, transcription, and AI analysis pipeline.
-
-### 📊 Analysis Results
-
-![Analysis Results](assets/image_3.png)
-
-> View the generated transcript, summary, action items, key decisions, and open questions.
-
-### 💬 RAG-Based Question Answering
-
-![RAG Question Answering](assets/image_4.png)
-
-> Ask questions about the uploaded recording and receive context-aware answers based on the transcript.
-
+| Analysis Results | RAG Question Answering |
+|---|---|
+| ![Analysis Results](assets/image_3.png) | ![RAG Question Answering](assets/image_4.png) |
 ---
 
 ## 📌 Overview
